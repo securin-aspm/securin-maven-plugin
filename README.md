@@ -16,5 +16,5 @@ Determine the nature of vulnerabilities, such as Remote Code Execution (RCE) or 
 Gain a deeper understanding of each vulnerability's threat potential. Securin plugin provides insights into associated threats, giving you a clear perspective on the risks involved.
 ## Maven Life cycle & Execution
 
-![alt text](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
+![Life Cycle](https://github.com/securin-aspm/securin-maven-plugin/blob/main/Securin-%20Maven%20plugin.jpg?raw=true)
 
