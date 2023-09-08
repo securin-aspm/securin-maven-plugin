@@ -18,3 +18,33 @@ Gain a deeper understanding of each vulnerability's threat potential. Securin pl
 
 ![Life Cycle](https://github.com/securin-aspm/securin-maven-plugin/blob/main/Securin-%20Maven%20plugin.jpg?raw=true)
 
+## Plugin Configuration & Execution
+Add below plugin code in pom xml
+```
+<plugin>
+				<groupId>io.securin.plugin</groupId>
+				<artifactId>securin-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>securin-plugin</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<apiKey></apiKey><!-- Get API key from securin ASPM platform -->
+					</configuration>
+</plugin>
+```
+### Execution command
+With Plugin attached to test phase in maven lifecycle, this can be executed using
+```
+mvn clean install
+mvn test
+```
+Use any preferred IDE as well to execute these commands
+**Plugin Direct execution**
+```
+mvn securin:securin-plugin
+```
