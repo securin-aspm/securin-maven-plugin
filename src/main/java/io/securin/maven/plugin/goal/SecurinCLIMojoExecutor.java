@@ -21,6 +21,7 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 import io.securin.maven.plugin.helper.CLIServiceHelper;
 import io.securin.maven.plugin.helper.ExecutableDestination;
 import io.securin.maven.plugin.helper.Platform;
+import io.securin.maven.plugin.model.Response;
 import io.securin.maven.plugin.utils.CLIUtils;
 import io.securin.maven.plugin.utils.HttpUtil;
 import io.securin.maven.plugin.utils.PropertyUtil;
@@ -48,17 +49,34 @@ public class SecurinCLIMojoExecutor extends AbstractMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		Path securinExePath = getExecutablePath();
+		Log log = getLog();
+		if (!validRequestParams(log)) {
+			return;
+		}
+		Path securinExePath = getExecutablePath(log);
 		if (securinExePath != null) {
 			runProcess(securinExePath.toFile().getAbsolutePath());
 		}
 	}
 
-	public Path getExecutablePath() {
-		Log log = getLog();
+	public boolean validRequestParams(Log log) {
+		if (!CLIUtils.isNotEmpty(apiKey)) {
+			log.error("api key is not present");
+			return false;
+		}
+		return true;
+	}
+
+	public Path getExecutablePath(Log log) {
 		Platform currentOS = Platform.currentOS();
 		HttpUtil httpUtil = new HttpUtil(PropertyUtil.getProperty("SL_RESULT_API_HOST"), log);
-		String cliVersion = httpUtil.getCliVersion(version, apiKey).getResp();
+
+		Response<String> cliVerResp = httpUtil.getCliVersion(version, apiKey);
+		if (!cliVerResp.isSuccess() && cliVerResp.getResponseCode() == 401) {
+			log.error("API key is not valid");
+			return null;
+		}
+		String cliVersion = cliVerResp.getResp();
 		if (cliVersion == null || cliVersion.length() <= 0) {
 			log.error("Unable to get CLI executable version");
 			return null;
@@ -88,6 +106,7 @@ public class SecurinCLIMojoExecutor extends AbstractMojo {
 		if (debug) {
 			parts.add("-is_debug=" + debug);
 		}
+		parts.add("-enable_color=true");
 		parts.addAll(args);
 		if (log.isDebugEnabled()) {
 			log.debug("cli arguments " + parts);
@@ -99,7 +118,7 @@ public class SecurinCLIMojoExecutor extends AbstractMojo {
 		try {
 			log.info("Securin maven plugin started");
 			process = pb.start();
-			byte[] inpData = CLIUtils.getByteStreamContent(process.getInputStream());
+			String inpData = CLIUtils.getStreamContent(process.getInputStream());
 			String errData = CLIUtils.getStreamContent(process.getErrorStream());
 			process.waitFor(10, TimeUnit.MINUTES);
 			if (errData != null && errData.length() > 0) {
@@ -107,7 +126,7 @@ public class SecurinCLIMojoExecutor extends AbstractMojo {
 				log.error(errDt);
 				return;
 			}
-			List<?> logs = Arrays.asList(new String(inpData).split("\\r?\\n"));
+			List<?> logs = Arrays.asList(inpData.split("\\r?\\n"));
 			logs.forEach(line -> log.info(line.toString()));
 
 		} catch (IOException | InterruptedException e) { // NOSONAR
@@ -140,8 +159,7 @@ public class SecurinCLIMojoExecutor extends AbstractMojo {
 		Process process;
 		try {
 			process = pb.start();
-			byte[] inpData = CLIUtils.getByteStreamContent(process.getInputStream());
-			String data = new String(inpData);
+			String data = CLIUtils.getStreamContent(process.getInputStream());
 			String cliVersion = data.trim();
 			String pluginVer = "\"" + pluginVersion + "\"";
 			if (!cliVersion.equalsIgnoreCase(pluginVer)) {

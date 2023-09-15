@@ -6,6 +6,6 @@ import lombok.Data;
 public class Response<T> {
 	private boolean success = false;
 	private T resp;
-
+	private int responseCode;
 
 }

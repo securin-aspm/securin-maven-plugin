@@ -18,14 +18,6 @@ public class CLIUtils {
 		}
 	}
 
-	public static byte[] getByteStreamContent(InputStream inpStream) throws IOException {
-		try {
-			return inpStream.readAllBytes();
-		} finally {
-			inpStream.close();
-		}
-	}
-
 	public static boolean isNotEmpty(String str) {
 		return str != null && str.length() > 0;
 	}

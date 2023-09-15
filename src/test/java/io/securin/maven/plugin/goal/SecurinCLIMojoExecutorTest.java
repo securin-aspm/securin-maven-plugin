@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,8 @@ class SecurinCLIMojoExecutorTest {
 
 	@Test
 	void testExecute() throws Exception {
+		List<String> argLs = new ArrayList<>();
+		argLs.add("args");
 		Field apiKey = securinCLIMojoExecutor.getClass().getDeclaredField("apiKey");
 		apiKey.setAccessible(true);
 		apiKey.set(securinCLIMojoExecutor, "apiKey");
@@ -52,7 +55,7 @@ class SecurinCLIMojoExecutorTest {
 		debugField.set(securinCLIMojoExecutor, true);
 		Field argsField = securinCLIMojoExecutor.getClass().getDeclaredField("args");
 		argsField.setAccessible(true);
-		argsField.set(securinCLIMojoExecutor, List.of("args"));
+		argsField.set(securinCLIMojoExecutor, argLs);
 		Response<String> versionResp = new Response<>();
 		versionResp.setResp("1.0.2");
 		Map<String, String> versionDtls = new HashMap<String, String>();
@@ -92,7 +95,7 @@ class SecurinCLIMojoExecutorTest {
 								when(pb.start()).thenReturn(process);
 							})) {
 						try (MockedStatic<CLIUtils> cliUtils = mockStatic(CLIUtils.class)) {
-							cliUtils.when(() -> CLIUtils.getByteStreamContent(any())).thenReturn("Success".getBytes());
+							cliUtils.when(() -> CLIUtils.getStreamContent(any())).thenReturn("Success");
 							cliUtils.when(() -> CLIUtils.isNotEmpty(any())).thenReturn(true);
 							securinCLIMojoExecutor.execute();
 
