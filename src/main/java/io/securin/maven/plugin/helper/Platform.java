@@ -3,7 +3,7 @@ package io.securin.maven.plugin.helper;
 import java.util.Locale;
 
 public enum Platform {
-	WINDOWS("securin-cli-win.exe"), MAC("securin-cli-mac");
+	WINDOWS("securin-cli-win.exe"), MAC("securin-cli-mac"), LINUX("securin-cli-linux");
 
 	public final String securinExecutableFileName;
 
@@ -21,6 +21,8 @@ public enum Platform {
 			return WINDOWS;
 		} else if (osNameLower.contains("mac os x") || osNameLower.contains("darwin") || osNameLower.contains("osx")) {
 			return MAC;
+		} else if(osNameLower.contains("linux")) {
+			return LINUX;
 		}
 		throw new IllegalArgumentException(osNameLower + " is not supported.");
 	}

@@ -47,21 +47,36 @@ public class SecurinCLIMojoExecutor extends AbstractMojo {
 	@Parameter(property = "args")
 	private List<String> args;
 
+	@Parameter(property = "skipBuildBreak", defaultValue = "false")
+	private boolean skipBuildBreak;
+
+	@Parameter(property = "skipScan", defaultValue = "false")
+	private boolean skipScan;
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		Log log = getLog();
+		if (skipScan) {
+			log.info("Securin scan skipped");
+			return;
+		}
 		if (!validRequestParams(log)) {
 			return;
 		}
 		Path securinExePath = getExecutablePath(log);
 		if (securinExePath != null) {
-			runProcess(securinExePath.toFile().getAbsolutePath());
+			int exitValue = runProcess(securinExePath.toFile().getAbsolutePath());
+			if (exitValue == 0 && skipBuildBreak) {
+				log.info("Skipping build break option");
+			} else if (exitValue == 2) {
+				throw new MojoFailureException("Scan failed because of severity threshold exceeded");
+			}
 		}
 	}
 
 	public boolean validRequestParams(Log log) {
 		if (!CLIUtils.isNotEmpty(apiKey)) {
-			log.error("api key is not present");
+			log.error("Authorization Failed - API Key is not available");
 			return false;
 		}
 		return true;
@@ -73,7 +88,7 @@ public class SecurinCLIMojoExecutor extends AbstractMojo {
 
 		Response<String> cliVerResp = httpUtil.getCliVersion(version, apiKey);
 		if (!cliVerResp.isSuccess() && cliVerResp.getResponseCode() == 401) {
-			log.error("API key is not valid");
+			log.error("Authorization Failed - API key is not valid");
 			return null;
 		}
 		String cliVersion = cliVerResp.getResp();
@@ -92,7 +107,7 @@ public class SecurinCLIMojoExecutor extends AbstractMojo {
 		return securinExeName;
 	}
 
-	public void runProcess(String cliExecutablePath) {
+	public int runProcess(String cliExecutablePath) {
 		Log log = getLog();
 		List<String> parts = new ArrayList<>();
 		parts.add(cliExecutablePath);
@@ -104,7 +119,10 @@ public class SecurinCLIMojoExecutor extends AbstractMojo {
 			parts.add("-branch_name=" + branchName);
 		}
 		if (debug) {
-			parts.add("-is_debug=" + debug);
+			parts.add("-is_debug=true");
+		}
+		if(skipBuildBreak) {
+			parts.add("-skip_build_fail=true");
 		}
 		parts.add("-enable_color=true");
 		parts.addAll(args);
@@ -115,16 +133,18 @@ public class SecurinCLIMojoExecutor extends AbstractMojo {
 		pb.environment().put("FORCE_COLOR", "true");
 		pb.directory(getProjectRootDirectory());
 		Process process;
+		int exitValue = 0;
 		try {
 			log.info("Securin maven plugin started");
 			process = pb.start();
 			String inpData = CLIUtils.getStreamContent(process.getInputStream());
 			String errData = CLIUtils.getStreamContent(process.getErrorStream());
-			process.waitFor(10, TimeUnit.MINUTES);
+			process.waitFor(30, TimeUnit.MINUTES);
+			exitValue = process.exitValue();
 			if (errData != null && errData.length() > 0) {
 				String errDt = errData.replaceAll(System.lineSeparator(), " ");
 				log.error(errDt);
-				return;
+				return exitValue;
 			}
 			List<?> logs = Arrays.asList(inpData.split("\\r?\\n"));
 			logs.forEach(line -> log.info(line.toString()));
@@ -135,6 +155,7 @@ public class SecurinCLIMojoExecutor extends AbstractMojo {
 				log.debug("Error ", e);
 			}
 		}
+		return exitValue;
 	}
 
 	private File getProjectRootDirectory() {
