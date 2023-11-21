@@ -25,6 +25,10 @@ public class ExecutableDestination {
 			return Optional.ofNullable(env.get("APPDATA")).map(Paths::get)
 					.map(appData -> appData.resolve("Securin" + File.separator + version))
 					.orElseThrow(() -> new RuntimeException("Windows needs AppData directory"));
+		} else if (Platform.LINUX.equals(platform)) {
+			return Optional.ofNullable(env.get("HOME")).map(Paths::get)
+					.map(appData -> appData.resolve(".config/Securin" + File.separator + version))
+					.orElseThrow(() -> new RuntimeException("Linux needs a home directory"));
 		}
 		throw new RuntimeException("securin doesnt support - " + platform);
 	}
