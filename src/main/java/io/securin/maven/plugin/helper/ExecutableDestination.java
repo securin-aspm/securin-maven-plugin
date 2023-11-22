@@ -17,10 +17,18 @@ public class ExecutableDestination {
 	}
 
 	private static Path getFileDirectory(Platform platform, Map<String, String> env, String version) {
-		if (Platform.WINDOWS.equals(platform)) {
+		if (Platform.MAC.equals(platform)) {
+			return Optional.ofNullable(System.getProperty("user.home")).map(Paths::get)
+					.map(home -> home.resolve("Library/Application Support/Securin" + File.separator + version))
+					.orElseThrow(() -> new RuntimeException("MacOS needs a home directory"));
+		} else if (Platform.WINDOWS.equals(platform)) {
 			return Optional.ofNullable(env.get("APPDATA")).map(Paths::get)
 					.map(appData -> appData.resolve("Securin" + File.separator + version))
-					.orElseThrow(() -> new RuntimeException("Windows needs AppData directory."));
+					.orElseThrow(() -> new RuntimeException("Windows needs AppData directory"));
+		} else if (Platform.LINUX.equals(platform)) {
+			return Optional.ofNullable(env.get("HOME")).map(Paths::get)
+					.map(appData -> appData.resolve(".config/Securin" + File.separator + version))
+					.orElseThrow(() -> new RuntimeException("Linux needs a home directory"));
 		}
 		throw new RuntimeException("securin doesnt support - " + platform);
 	}
