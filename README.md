@@ -34,8 +34,13 @@ Add the Securin Maven Plugin in pom.xml. PFB sample
 				</executions>
 				<configuration>
 					<apiKey>${env.SECURIN_TOKEN}</apiKey> 
+					<!-- Added optional params
 					<appId>sample-app-id</appId>
 					<branchName>sample-branch</branchName>
+					<skipScan>false</skipScan>
+					<skipBuildBreak>false</skipBuildBreak>
+					<debug>false</debug>
+					<version>1.0.3</version>-->
 				</configuration>
 			</plugin>
 ```
@@ -60,6 +65,8 @@ mvn securin:securin-plugin
 | branchName(Optional) | Branch name for which the scan triggered |
 | debug(Optional) | To view verbose logs |
 | version(Optional) | CLI version to be used. |
+| skipBuildBreak(Optional) | To disable build break feature. |
+| skipScan(Optional) | To disable securin scan |
 
 Platform Url: https://aspm.securin.io (In beta version & not yet available publicly)
 
@@ -69,10 +76,10 @@ Platform Url: https://aspm.securin.io (In beta version & not yet available publi
 To get the apiKey, Login to Securin platform and follow the below steps.
 
 Step 1: Select the **workspace** dropdown & select Workspace settings.
-![Workspace settings](https://github.com/securin-aspm/securin-maven-plugin/blob/main/images/1694585163321.png?raw=true)
+![Workspace settings](https://github.com/securin-aspm/securin-maven-plugin/blob/main/images/orgID.png?raw=true)
 Step 2: For the first time to generate the key, Click on the **Generate API Token** button and copy the API Key.  If the key is already generated, Click on **SHOW API TOKEN** to get the key.
 ![Workspace api token widget](https://github.com/securin-aspm/securin-maven-plugin/blob/main/images/1694585010158.png?raw=true)
-![API token widget](https://github.com/securin-aspm/securin-maven-plugin/blob/main/images/1694585079880.png?raw=true)
+![API token widget](https://github.com/securin-aspm/securin-maven-plugin/blob/main/images/apiKyTkn.png?raw=true)
 
 **appId [string] (Optional)**
 - Appid is an unique id that is available for each application in Securin-ASPM platform. By Adding the appId parameter, findings will be mapped to corresponding application in the Securin platform. It is useful when the user wants to manage and triage the findings.
@@ -82,9 +89,9 @@ Note: Maven plugin will not send the findings to the Securin platform if the app
 AppId can be retrieved by following the below steps.
 
 In the Application screen, click on the settings icon for viewing **application settings** of any app.
-![Application screen](https://github.com/securin-aspm/securin-maven-plugin/blob/main/images/1694585903984.png?raw=true)
+![Application screen](https://github.com/securin-aspm/securin-maven-plugin/blob/main/images/appName.png?raw=true)
 In Application settings page, app id can be fetched from the application details widget.
-![Application settings](https://github.com/securin-aspm/securin-maven-plugin/blob/main/images/1694585972551.png?raw=true)
+![Application settings](https://github.com/securin-aspm/securin-maven-plugin/blob/main/images/appId.png?raw=true)
 
 **branchName [string] (Optional)**
 - Use “branchName” parameter to specify if the findings have to be mapped with any specific branch for an application in Securin platform.  If the branch name is not provided, the findings will be mapped with the default branch for the application.
@@ -95,13 +102,20 @@ In Application settings page, app id can be fetched from the application details
 **version [string] (Optional)**
 - Version parameter can be used to run the specific Securin CLI version. By default, the latest version will be downloaded and run.
 
+**skipBuildBreak [string] (Optional)**
+- This paramter can be used to skip the maven build break when the scan got CRITICAL/HIGH severity. By default this flag will be false.
+
+**skipScan [string] (Optional)**
+- This parameter can be used to skip the securin scan from the maven build cycle.
+
 ### SUPPORTED VERSIONS
-- Java 11 and above
+- OS: Windows & Linux
+- Java 8 and above
 - Maven 3.2.5  and above
 
 ### SUPPORTED SCAN TYPES
-- Current version of maven plugin supports only Software Composition Analysis (SCA)
-- The future versions will have Secrets and Misconfiguration checks
+- Current version of maven plugin supports Software Composition Analysis (SCA) & Secrets
+- The future versions will have Container and Misconfiguration checks
 
 ### SCAN OUTPUTS AND FORMATS
 - Securin maven plugin can be used in IDE environment and Command Line Interface (CLI)
