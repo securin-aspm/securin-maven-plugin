@@ -34,8 +34,13 @@ Add the Securin Maven Plugin in pom.xml. PFB sample
 				</executions>
 				<configuration>
 					<apiKey>${env.SECURIN_TOKEN}</apiKey> 
+					<!-- Added optional params
 					<appId>sample-app-id</appId>
 					<branchName>sample-branch</branchName>
+					<skipScan>false</skipScan>
+					<skipBuildBreak>false</skipBuildBreak>
+					<debug>false</debug>
+					<version>1.0.3</version>-->
 				</configuration>
 			</plugin>
 ```
