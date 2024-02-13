@@ -68,7 +68,7 @@ mvn securin:securin-plugin
 | skipBuildBreak(Optional) | To disable build break feature. |
 | skipScan(Optional) | To disable securin scan |
 
-Platform Url: https://aspm.securin.io (In beta version & not yet available publicly)
+Platform Url: https://aspm.securin.io 
 
 **apiKey [string] (Mandatory)**
 - Maven plugin requires ApiKey for authentication
