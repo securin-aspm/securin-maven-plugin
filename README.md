@@ -109,8 +109,8 @@ In Application settings page, app id can be fetched from the application details
 - Maven 3.2.5  and above
 
 ### SUPPORTED SCAN TYPES
-- Current version of maven plugin supports only Software Composition Analysis (SCA)
-- The future versions will have Secrets and Misconfiguration checks
+- Current version of maven plugin supports Software Composition Analysis (SCA) & Secrets
+- The future versions will have Container and Misconfiguration checks
 
 ### SCAN OUTPUTS AND FORMATS
 - Securin maven plugin can be used in IDE environment and Command Line Interface (CLI)
