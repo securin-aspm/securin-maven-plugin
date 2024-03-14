@@ -1,0 +1,47 @@
+---
+name: Securin-ASPM
+on:
+  pull_request:
+    branches:
+    - main
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: Log level
+jobs:
+  scanning:
+    env:
+      APP_ID: eda1e70aa8cebcf875a759e1d3f378b34fea13b4ca5b8ed34c215e00d0c4bce8
+      BRANCH_NAME: main
+      SCAN_ID: 3b74743742de5bb8c6e74d11a8aec515ab10bf63dc6a971fb32e23e4cb8a990e
+      REQ_URL_MAP: "${{toJSON('{\"SL_RESULT_API_HOST\":\"https://slresultapi.qa.securin.io/resultapi\"\
+        ,\"SL_RESULTPARSER_API_HOST\":\"https://slresultparserapi.qa.securin.io/resultparserapi\"\
+        }')}}"
+    steps:
+    - name: Retrieve Token Info
+      id: auth_token
+      run: "respJson=$(curl --location --request GET 'https://slresultapi.qa.securin.io/resultapi/aws/ecr/token'\
+        \  --header 'X-ASPM-Auth-Key: ${{secrets.ORG_API_KEY}}'  --data-raw ' ' )\
+        \ \necho \"authTokenJson=$respJson\" >> $GITHUB_OUTPUT"
+    - uses: actions/checkout@v3
+    - name: Scan Initiated
+      id: sec_scan_init
+      run: "usrVal=$(echo '${{fromJson(steps.auth_token.outputs.authTokenJson).user}}'\
+        \ | openssl enc -aes-256-cbc -d -a -K ${{secrets.ENC_KEY}} -iv ${{secrets.ENC_IV}}\
+        \ ) \nusrPassword=$(echo '${{fromJson(steps.auth_token.outputs.authTokenJson).password}}'\
+        \ | openssl enc -aes-256-cbc -d -base64 -A -K ${{secrets.ENC_KEY}} -iv ${{secrets.ENC_IV}}\
+        \ ) \nusrPrxyUrl=$(echo '${{fromJson(steps.auth_token.outputs.authTokenJson).proxyUrl}}'\
+        \ | openssl enc -aes-256-cbc -d -a -K ${{secrets.ENC_KEY}} -iv ${{secrets.ENC_IV}}\
+        \ ) \nusrImgTag=$(echo '${{fromJson(steps.auth_token.outputs.authTokenJson).imageTag}}'\
+        \ | openssl enc -aes-256-cbc -d -a -K ${{secrets.ENC_KEY}} -iv ${{secrets.ENC_IV}}\
+        \ ) \ndocker login --username  $usrVal --password $usrPassword $usrPrxyUrl\
+        \ \ndocker pull -q $usrImgTag \ndocker run -v ${{github.workspace}}:/src \
+        \ --volume ${{github.workspace}}:/workdir -v /var/run/docker.sock:/var/run/docker.sock\
+        \ $usrImgTag -api_key ${{secrets.ORG_API_KEY}} -wrkspc_id ${{secrets.WORKSPACE_ID}}\
+        \ -app_id ${{ env.APP_ID }} -scan_id ${{ env.SCAN_ID }} -branch_name ${{ env.BRANCH_NAME\
+        \ }} -req_url_map ${{ env.REQ_URL_MAP }} -tool_name github event:${{ github.event_name\
+        \ }}  pr_number:${{ github.event.number }} -upload_log true"
+    - name: Evaluate build status
+      run: "cat ${{github.workspace}}/results/status.txt\nexit 1\n"
+      if: hashFiles('**/status.txt') !=''
+    runs-on: ubuntu-latest
