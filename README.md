@@ -24,7 +24,7 @@ Add the Securin Maven Plugin in pom.xml. PFB sample
 			<plugin>
 				<groupId>io.securin.plugin</groupId>
 				<artifactId>securin-maven-plugin</artifactId>
-				<version>1.0.0</version>
+				<version>1.0.3</version>
 				<executions>
 					<execution>
 						<goals>
