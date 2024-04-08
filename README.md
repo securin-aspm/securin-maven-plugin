@@ -1,7 +1,7 @@
 
 # Securin Maven plugin 
 
-Securin plugin is designed to seamlessly integrate into your Maven build process, enabling you to perform SCA/Secrets/IAC scans right from your developer environment. Its capabilities extend beyond simple scanning; it provides a comprehensive suite of features:
+Securin plugin is designed to seamlessly integrate into your Maven build process, enabling you to perform SCA/Secrets/Container Image scans right from your developer environment. Its capabilities extend beyond simple scanning; it provides a comprehensive suite of features:
 
 
 ## Vulnerability Identification
