@@ -41,6 +41,9 @@ Add the Securin Maven Plugin in pom.xml. PFB sample
 					<skipBuildBreak>false</skipBuildBreak>
 					<debug>false</debug>
 					<version>1.0.3</version>-->
+					<args>
+						<arg>-format="csv,json"</arg>
+					</args>
 				</configuration>
 			</plugin>
 ```
