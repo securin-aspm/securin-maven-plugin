@@ -5,7 +5,7 @@ Securin plugin is designed to seamlessly integrate into your Maven build process
 
 
 ## Vulnerability Identification
-The plugin performs a thorough scan of your project's POM XML dependencies, identifying vulnerabilities that might pose risks
+The plugin performs a thorough scan of your project's POM XML dependencies, identifying vulnerabilities that might pose risks.
 ## Prioritization
 Not all vulnerabilities are equal. Securin plugin assists you in prioritizing identified vulnerabilities, helping you address the most critical issues first.
 ## Trend Analysis
@@ -68,8 +68,9 @@ mvn securin:securin-plugin
 | branchName(Optional) | Branch name for which the scan triggered |
 | debug(Optional) | To view verbose logs |
 | version(Optional) | CLI version to be used. |
-| skipBuildBreak(Optional) | To disable build break feature. |
-| skipScan(Optional) | To disable securin scan |
+| skipBuildBreak(Optional) | To enable or disable build break feature. Default value is True |
+| skipScan(Optional) | To disable securin scan, Default value is False |
+| format(Optional) | To define the output file format, default format is JSON |
 
 Platform Url: https://aspm.securin.io 
 
@@ -117,8 +118,8 @@ In Application settings page, app id can be fetched from the application details
 - Maven 3.2.5  and above
 
 ### SUPPORTED SCAN TYPES
-- Current version of maven plugin supports Software Composition Analysis (SCA) & Secrets
-- The future versions will have Container and Misconfiguration checks
+- Current version of maven plugin supports Software Composition Analysis(SCA), Secrets & Container Image
+- The future versions will have SAST and Misconfiguration(IaC) checks
 
 ### SCAN OUTPUTS AND FORMATS
 - Securin maven plugin can be used in IDE environment and Command Line Interface (CLI)
